@@ -6,6 +6,6 @@
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#c9fff1",
-  "theme_color": "#12bfe3",
-  "description": "Capture territory by closing your trail."
+  "theme_color": "#11bde3",
+  "description": "Draw a loop, capture land, outplay rivals."
 }

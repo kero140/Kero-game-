@@ -3,155 +3,95 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#12bfe3">
-<meta name="description" content="Territory Trails — capture the map by closing your trail.">
-<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#11bde3">
+<meta name="description" content="Territory Trails — draw a loop, capture land, outplay rivals.">
+<link rel="manifest" href="./manifest.webmanifest">
 <title>Territory Trails</title>
 <style>
-:root{--bg:#c9fff1;--ink:#153d83;--blue:#1689ff;--yellow:#ffca36;--pink:#ff668d;--green:#36d6b0}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#9cefff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);touch-action:none}
-#game{display:block;width:100vw;height:100dvh}
-.hud{position:fixed;inset:env(safe-area-inset-top) 0 auto 0;pointer-events:none;padding:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
-.pill{background:#fffef1eF;border:3px solid #244b9a;border-radius:18px;padding:7px 12px;font-weight:900;font-size:14px;box-shadow:0 3px 0 #86b6d6}
-#stats{display:grid;gap:7px}.pill small{display:block;font-size:10px;opacity:.7;letter-spacing:.5px}
-#right{display:grid;gap:7px;text-align:right}.meter{width:min(38vw,160px);height:12px;background:#dcecff;border:2px solid #244b9a;border-radius:20px;overflow:hidden}.meter>div{height:100%;width:0;background:linear-gradient(90deg,#ffcf3b,#ff8d35)}
-#hint{position:fixed;top:88px;left:50%;transform:translateX(-50%);background:#fffef1ed;border:2px solid #244b9a;border-radius:16px;padding:8px 12px;font-weight:800;font-size:12px;white-space:nowrap;pointer-events:none}
-#controls{position:fixed;inset:auto 0 max(18px,env(safe-area-inset-bottom)) 0;display:flex;justify-content:space-between;align-items:end;padding:0 18px;pointer-events:none}
-#stick{width:118px;height:118px;border-radius:50%;background:#ffffff80;border:3px solid #fff;box-shadow:0 0 0 2px #2753a2;position:relative;pointer-events:auto;touch-action:none}
-#knob{width:48px;height:48px;border-radius:50%;background:linear-gradient(#fff,#cce9ff);border:3px solid #2855a0;position:absolute;left:32px;top:32px;box-shadow:0 3px 0 #7ea3d5}
-#buttons{display:grid;gap:8px;justify-items:end;pointer-events:auto}
-.btn{border:3px solid #214b98;background:#fff4c9;border-radius:16px;padding:10px 14px;font-weight:900;color:#173f86;box-shadow:0 4px 0 #7ca7d7;touch-action:manipulation}
-#overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#09bde7d9,#d3fff0ee);padding:22px;z-index:5}
-.panel{width:min(440px,100%);background:#fffdf2;border:4px solid #234a98;border-radius:28px;padding:24px;box-shadow:0 8px 0 #6c9acb;text-align:center}
-.logo{font-size:clamp(28px,8vw,44px);font-weight:1000;letter-spacing:-1.5px;color:#1689ff;text-shadow:2px 3px 0 #c4e7ff,-2px -2px 0 #fff}
-.panel p{line-height:1.5;font-size:14px;color:#38598a}
-.panel .btn{font-size:16px;width:100%;margin-top:8px;background:#ffcf3f}
-#message{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:4;background:#fffef2;border:3px solid #244b9a;border-radius:16px;padding:12px 18px;font-weight:900;display:none;pointer-events:none}
-@media(min-width:700px){#controls{padding:0 35px 25px}#stick{width:130px;height:130px}#knob{left:38px;top:38px}#hint{top:78px}}
+:root{color-scheme:light;--navy:#173f83;--blue:#168bff;--aqua:#c9fff1;--gold:#ffd348}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--aqua);font-family:ui-rounded,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--navy);touch-action:none;user-select:none;-webkit-user-select:none}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+.hud{position:fixed;top:max(10px,env(safe-area-inset-top));left:10px;right:10px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;gap:8px}
+.stack{display:grid;gap:7px}.chip{background:#fffdf0f2;border:2px solid #21498f;border-radius:15px;padding:7px 11px;box-shadow:0 3px 0 #83b4d5;font-weight:950;font-size:13px;min-width:78px}.chip small{display:block;font-size:9px;letter-spacing:.8px;opacity:.68}.right{text-align:right;justify-items:end}
+#progress{height:9px;width:112px;border:2px solid #21498f;background:#dceaff;border-radius:20px;overflow:hidden;margin-top:4px}#fill{height:100%;width:8%;background:linear-gradient(90deg,#ffd348,#ff9239);transition:width .15s}
+#tip{position:fixed;top:93px;left:50%;transform:translateX(-50%);max-width:90vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#fffdf0ed;border:2px solid #21498f;border-radius:14px;padding:7px 11px;font-weight:900;font-size:12px;pointer-events:none}
+#bottom{position:fixed;bottom:max(16px,env(safe-area-inset-bottom));left:16px;right:16px;display:flex;justify-content:space-between;align-items:end;pointer-events:none}
+#joy{width:112px;height:112px;border-radius:50%;background:#ffffff80;border:2px solid #fff;box-shadow:0 0 0 2px #21498f;position:relative;pointer-events:auto;touch-action:none}
+#nub{position:absolute;width:45px;height:45px;left:31px;top:31px;border-radius:50%;background:linear-gradient(#fff,#c9eaff);border:3px solid #21498f;box-shadow:0 3px 0 #83acd3}
+.actions{display:grid;gap:8px;pointer-events:auto;justify-items:end}.btn{border:2px solid #21498f;border-radius:14px;background:#fff5c7;color:#173f83;font-weight:950;padding:10px 12px;box-shadow:0 3px 0 #83b4d5;font-size:12px;touch-action:manipulation}
+#cover{position:fixed;inset:0;background:linear-gradient(145deg,#11bde9ed,#d1fff2f5);display:grid;place-items:center;padding:20px;z-index:5}
+.panel{width:min(440px,100%);background:#fffdf0;border:3px solid #21498f;border-radius:27px;padding:24px;box-shadow:0 7px 0 #7aa9d4;text-align:center}
+.logo{font-size:clamp(33px,9vw,49px);font-weight:1000;line-height:.9;letter-spacing:-1.8px;color:#168bff;text-shadow:2px 3px #bceaff}
+.panel p{font-size:13px;line-height:1.5;color:#3b5985}.panel .btn{width:100%;font-size:16px;padding:13px;background:#ffd348;margin-top:7px}
+#toast{position:fixed;z-index:4;left:50%;top:48%;transform:translate(-50%,-50%);background:#fffdf0;border:3px solid #21498f;border-radius:16px;padding:11px 16px;font-weight:1000;display:none;white-space:nowrap;box-shadow:0 4px 0 #83b4d5}
+#mini{position:fixed;bottom:145px;left:12px;width:100px;height:100px;pointer-events:none;border:2px solid #21498f;border-radius:14px;background:#fffdf0dd}
+@media(min-width:700px){#joy{width:124px;height:124px}#nub{left:37px;top:37px}#bottom{left:30px;right:30px;bottom:24px}}
 </style>
 </head>
 <body>
 <canvas id="game"></canvas>
 <div class="hud">
-  <div id="stats">
-    <div class="pill"><small>YOUR TERRITORY</small><span id="percent">8%</span></div>
-    <div class="pill">🪙 <span id="coins">0</span></div>
-  </div>
-  <div id="right">
-    <div class="pill"><small>ROUND</small><span id="timer">02:00</span></div>
-    <div class="pill"><small>RANK</small><span id="rank">1 / 4</span></div>
-    <div class="meter"><div id="meterFill"></div></div>
-  </div>
+ <div class="stack"><div class="chip"><small>YOUR LAND</small><span id="pct">0%</span></div><div class="chip">🪙 <span id="coins">0</span></div></div>
+ <div class="stack right"><div class="chip"><small>TIME LEFT</small><span id="time">02:00</span></div><div class="chip"><small>RANK</small><span id="rank">1 / 4</span><div id="progress"><div id="fill"></div></div></div></div>
 </div>
-<div id="hint">Close your trail to capture land!</div>
-<div id="controls">
-  <div id="stick" aria-label="Movement joystick"><div id="knob"></div></div>
-  <div id="buttons">
-    <button class="btn" id="modeBtn">MODE: TIME</button>
-    <button class="btn" id="pauseBtn">Ⅱ PAUSE</button>
-  </div>
-</div>
-<div id="message"></div>
-<div id="overlay">
-  <div class="panel">
-    <div class="logo">TERRITORY<br>TRAILS</div>
-    <p>Leave your safe zone, draw a trail, then return to your color to capture the enclosed area.</p>
-    <p><b>Offline-ready prototype</b><br>Solo practice with 3 computer rivals. Local multiplayer and APK packaging are planned next.</p>
-    <button class="btn" id="startBtn">PLAY NOW</button>
-    <button class="btn" id="installBtn" style="display:none;background:#d8f6ff">INSTALL GAME</button>
-    <p style="font-size:11px">Prototype 0.1 · Free · No account required</p>
-  </div>
-</div>
+<div id="tip">Leave your land. Return to close the loop.</div>
+<div id="mini"></div>
+<div id="bottom"><div id="joy" aria-label="Movement joystick"><div id="nub"></div></div><div class="actions"><button class="btn" id="mode">MODE: TIMED</button><button class="btn" id="pause">Ⅱ PAUSE</button></div></div>
+<div id="toast"></div>
+<div id="cover"><div class="panel"><div class="logo">TERRITORY<br>TRAILS</div><p>Draw a trail outside your color, then return to your land to close the loop and claim the enclosed area.</p><p><b>Offline-ready · Free · No account</b><br>One player + three practice rivals. Capture as much land as possible in two minutes.</p><button class="btn" id="play">START GAME</button><button class="btn" id="install" style="display:none;background:#d8f6ff">INSTALL GAME</button><p style="font-size:10px">First open needs internet. After caching, play offline from the installed app.</p></div></div>
 <script>
-(()=> {
-const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
-const $=id=>document.getElementById(id);
-let W=0,H=0,dpr=1, running=false,paused=false,last=0,elapsed=0,coins=0,mode=0;
-const modes=['TIME','LAST PLAYER','MOST CAPTURE'];
-const colors=['#1689ff','#ffb92f','#ff668d','#8b69ef'];
-let players=[],trail=[],keys={},joy={x:0,y:0},pointer=null,cam={x:0,y:0};
-const world={w:1500,h:1500};
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-function resize(){dpr=Math.min(devicePixelRatio||1,1.6);W=innerWidth;H=innerHeight;canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0)}
-addEventListener('resize',resize);resize();
-function makePlayer(i,x,y){return {i,x,y,angle:Math.random()*6.28,color:colors[i],r:i===0?17:16,owned:[],trail:[],drawing:false,alive:true,score:0,aiTimer:Math.random()*2}}
-function reset(){
-players=[];const starts=[[world.w*.5,world.h*.5],[world.w*.2,world.h*.25],[world.w*.78,world.h*.28],[world.w*.72,world.h*.76]];
-for(let i=0;i<4;i++){let p=makePlayer(i,...starts[i]);p.owned=[{x:p.x,y:p.y,r:95}];players.push(p)}
-trail=[];elapsed=0;coins=0;paused=false;running=true;last=performance.now();$('overlay').style.display='none';$('message').style.display='none';updateHud()
-}
-function areaApprox(p){return p.owned.reduce((s,a)=>s+Math.PI*a.r*a.r,0)}
-function percent(p){return Math.min(99,Math.round(areaApprox(p)/(world.w*world.h)*100))}
-function updateHud(){const p=players[0];if(!p)return;$('percent').textContent=percent(p)+'%';$('coins').textContent=coins;$('timer').textContent=Math.max(0,120-Math.floor(elapsed)).toString().padStart(3,'0').replace(/^(\d)/,'0:$1');$('rank').textContent=(1+players.filter(q=>q.i!==0&&percent(q)>percent(p)).length)+' / 4';$('meterFill').style.width=percent(p)+'%';$('modeBtn').textContent='MODE: '+modes[mode]}
-function worldToScreen(x,y){return {x:x-cam.x+W/2,y:y-cam.y+H/2}}
-function screenToWorld(x,y){return {x:x-W/2+cam.x,y:y-H/2+cam.y}}
-function roundedRect(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
-function draw(){
-ctx.clearRect(0,0,W,H);ctx.fillStyle='#cffff0';ctx.fillRect(0,0,W,H);
-const left=cam.x-W/2,top=cam.y-H/2;
-ctx.save();ctx.translate(W/2-cam.x,H/2-cam.y);
-ctx.strokeStyle='#a5f2e7';ctx.lineWidth=2;
-for(let x=Math.floor(left/80)*80;x<left+W+80;x+=80){ctx.beginPath();ctx.moveTo(x,top-100);ctx.lineTo(x,top+H+100);ctx.stroke()}
-for(let y=Math.floor(top/80)*80;y<top+H+80;y+=80){ctx.beginPath();ctx.moveTo(left-100,y);ctx.lineTo(left+W+100,y);ctx.stroke()}
-ctx.strokeStyle='#7adfed';ctx.lineWidth=22;ctx.beginPath();ctx.moveTo(0,world.h*.48);ctx.bezierCurveTo(250,world.h*.35,280,world.h*.7,520,world.h*.6);ctx.stroke();
-for(const p of players){
-for(const a of p.owned){
-ctx.fillStyle=p.color+'30';ctx.strokeStyle=p.color;ctx.lineWidth=3;ctx.beginPath();ctx.arc(a.x,a.y,a.r,0,Math.PI*2);ctx.fill();ctx.stroke();
-}
-if(p.trail.length>1){ctx.beginPath();ctx.moveTo(p.trail[0].x,p.trail[0].y);for(let j=1;j<p.trail.length;j++)ctx.lineTo(p.trail[j].x,p.trail[j].y);ctx.strokeStyle='#fff';ctx.lineWidth=10;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();ctx.strokeStyle=p.color;ctx.lineWidth=5;ctx.stroke();ctx.lineCap='butt'}
-}
-for(const p of players){
-ctx.fillStyle='rgba(34,73,130,.15)';ctx.beginPath();ctx.ellipse(p.x,p.y+12,19,8,0,0,Math.PI*2);ctx.fill();
-ctx.fillStyle=p.color;ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.stroke();
-ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x-5,p.y-4,4,0,Math.PI*2);ctx.arc(p.x+5,p.y-4,4,0,Math.PI*2);ctx.fill();
-ctx.fillStyle='#173d7d';ctx.beginPath();ctx.arc(p.x-5,p.y-4,1.8,0,Math.PI*2);ctx.arc(p.x+5,p.y-4,1.8,0,Math.PI*2);ctx.fill();
-}
-if(players[0]){const p=players[0],mw=115,mh=100,mx=left+16,my=top+H-135;ctx.save();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#ffffffcc';ctx.strokeStyle='#234a98';ctx.lineWidth=2;roundedRect(14,H-132,mw,mh,15);ctx.fill();ctx.stroke();for(const q of players){ctx.fillStyle=q.color;ctx.beginPath();ctx.arc(14+q.x/world.w*mw,H-132+q.y/world.h*mh,3.5,0,Math.PI*2);ctx.fill()}ctx.restore()}
-ctx.restore();
-if(running&&!paused){requestAnimationFrame(draw)}
-}
-function insideOwn(p,x,y){return p.owned.some(a=>Math.hypot(x-a.x,y-a.y)<=a.r)}
-function closeLoop(p){
-if(p.trail.length<8)return false;
-const path=p.trail.slice(),first=path[0],last=path[path.length-1];
-if(!insideOwn(p,last.x,last.y))return false;
-const poly=[...path,{x:first.x,y:first.y}];
-let minX=Math.min(...poly.map(a=>a.x)),maxX=Math.max(...poly.map(a=>a.x)),minY=Math.min(...poly.map(a=>a.y)),maxY=Math.max(...poly.map(a=>a.y));
+(()=>{'use strict';
+const canvas=document.querySelector('#game'),ctx=canvas.getContext('2d',{alpha:false});
+const $=id=>document.getElementById(id), COLORS=['#168bff','#ffbd35','#ff668d','#8a68ef'];
+const COLS=100,ROWS=100,CELL=14,WW=COLS*CELL,WH=ROWS*CELL,ROUND=120;
+let dpr=1,sw=innerWidth,sh=innerHeight,last=0,elapsed=0,coins=0,active=false,paused=false,raf=0,frame=0,mode=0,toastTimer=0,installPrompt=null;
+let land=new Int8Array(COLS*ROWS).fill(-1),players=[],joy={x:0,y:0},keys={},cam={x:WW/2,y:WH/2};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), cellX=x=>clamp(Math.floor(x/CELL),0,COLS-1),cellY=y=>clamp(Math.floor(y/CELL),0,ROWS-1),idx=(x,y)=>cellY(y)*COLS+cellX(x);
+function resize(){dpr=Math.min(devicePixelRatio||1,1.5);sw=innerWidth;sh=innerHeight;canvas.width=Math.round(sw*dpr);canvas.height=Math.round(sh*dpr);canvas.style.width=sw+'px';canvas.style.height=sh+'px';ctx.setTransform(dpr,0,0,dpr,0,0);render()}
+addEventListener('resize',resize);
+function player(id,x,y){return{id,x,y,vx:0,vy:0,angle:0,color:COLORS[id],trail:[],drawing:false,alive:true,score:0,aiTime:0,aiX:0,aiY:0}}
+function seed(id,cx,cy,r){for(let y=Math.max(0,cy-r);y<=Math.min(ROWS-1,cy+r);y++)for(let x=Math.max(0,cx-r);x<=Math.min(COLS-1,cx+r);x++)if((x-cx)**2+(y-cy)**2<=r*r)land[y*COLS+x]=id}
+function reset(){land.fill(-1);players=[player(0,WW*.5,WH*.5),player(1,WW*.19,WH*.2),player(2,WW*.8,WH*.2),player(3,WW*.78,WH*.79)];players.forEach(p=>seed(p.id,cellX(p.x),cellY(p.y),7));elapsed=0;coins=0;active=true;paused=false;last=performance.now();cam={x:players[0].x,y:players[0].y};$('cover').style.display='none';$('pause').textContent='Ⅱ PAUSE';updateHud();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop)}
+function owned(id){let n=0;for(const v of land)if(v===id)n++;return n}
+function percent(id){return Math.round(owned(id)/land.length*100)}
+function updateHud(){if(!players.length)return;$('pct').textContent=percent(0)+'%';$('coins').textContent=coins;let left=Math.max(0,Math.ceil(ROUND-elapsed));$('time').textContent=String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0');$('rank').textContent=(1+players.slice(1).filter(p=>percent(p.id)>percent(0)).length)+' / 4';$('fill').style.width=percent(0)+'%';$('mode').textContent='MODE: '+['TIMED','SURVIVAL','CAPTURE'][mode]}
+function isMine(p,x,y){return land[idx(x,y)]===p.id}
+function pointInPoly(x,y,poly){let inside=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if(((a.y>y)!==(b.y>y))&&(x<(b.x-a.x)*(y-a.y)/(b.y-a.y)+a.x))inside=!inside}return inside}
+function capture(p){if(p.trail.length<5)return 0;const poly=p.trail.slice();const last=poly[poly.length-1];if(!isMine(p,last.x,last.y))return 0;
+let minX=COLS-1,maxX=0,minY=ROWS-1,maxY=0;for(const pt of poly){minX=Math.min(minX,cellX(pt.x));maxX=Math.max(maxX,cellX(pt.x));minY=Math.min(minY,cellY(pt.y));maxY=Math.max(maxY,cellY(pt.y))}
 let captured=0;
-for(let x=minX;x<=maxX;x+=22)for(let y=minY;y<=maxY;y+=22)if(pointPoly(x,y,poly))captured++;
-if(captured>0){p.owned.push({x:(minX+maxX)/2,y:(minY+maxY)/2,r:Math.min(100,Math.sqrt(captured*22*22/Math.PI))});if(p.i===0){coins+=Math.max(1,Math.floor(captured/12));showMessage('AREA CAPTURED! +' + Math.max(1,Math.floor(captured/12))+' coins')}p.score+=captured}
-return captured>0
+for(let gy=minY;gy<=maxY;gy++)for(let gx=minX;gx<=maxX;gx++){const i=gy*COLS+gx;if(land[i]===p.id)continue;const px=(gx+.5)*CELL,py=(gy+.5)*CELL;if(pointInPoly(px,py,poly)){land[i]=p.id;captured++}}
+if(captured){p.score+=captured;if(p.id===0){const reward=Math.max(1,Math.floor(captured/10));coins+=reward;notify('LAND CAPTURED  +'+reward+' COINS')}return captured}return 0}
+function notify(s){const el=$('toast');el.textContent=s;el.style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.style.display='none',1000)}
+function move(p,dx,dy,dt){if(!p.alive)return;let mag=Math.hypot(dx,dy);if(mag>1){dx/=mag;dy/=mag}
+const speed=210;p.vx+=(dx*speed-p.vx)*Math.min(1,dt*12);p.vy+=(dy*speed-p.vy)*Math.min(1,dt*12);if(mag<.02){p.vx*=Math.pow(.025,dt);p.vy*=Math.pow(.025,dt)}
+const ox=p.x,oy=p.y;p.x=clamp(p.x+p.vx*dt,8,WW-8);p.y=clamp(p.y+p.vy*dt,8,WH-8);if(Math.hypot(p.vx,p.vy)>8)p.angle=Math.atan2(p.vy,p.vx);
+const safe=isMine(p,p.x,p.y);
+if(!safe){if(!p.drawing){p.drawing=true;p.trail=[{x:ox,y:oy},{x:p.x,y:p.y}]}else{const prev=p.trail[p.trail.length-1];if(Math.hypot(p.x-prev.x,p.y-prev.y)>5)p.trail.push({x:p.x,y:p.y})}}
+else if(p.drawing){p.trail.push({x:p.x,y:p.y});capture(p);p.trail=[];p.drawing=false}
+if(p.trail.length>650){p.trail=[];p.drawing=false;if(p.id===0)notify('Trail limit reached — close a smaller loop')}
 }
-function pointPoly(x,y,poly){let c=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){let a=poly[i],b=poly[j];if(((a.y>y)!=(b.y>y))&&(x<(b.x-a.x)*(y-a.y)/(b.y-a.y)+a.x))c=!c}return c}
-let messageTimer;
-function showMessage(s){const m=$('message');m.textContent=s;m.style.display='block';clearTimeout(messageTimer);messageTimer=setTimeout(()=>m.style.display='none',1100)}
-function move(p,dx,dy,dt){
-const speed=p.i===0?190:125;let len=Math.hypot(dx,dy);if(len>.01){dx/=Math.max(1,len);dy/=Math.max(1,len);p.angle=Math.atan2(dy,dx)}
-let nx=clamp(p.x+dx*speed*dt,20,world.w-20),ny=clamp(p.y+dy*speed*dt,20,world.h-20);
-if((Math.abs(dx)+Math.abs(dy))>.05){p.x=nx;p.y=ny;if(!insideOwn(p,p.x,p.y)){if(!p.drawing){p.drawing=true;p.trail=[{x:p.x,y:p.y}]}else{const prev=p.trail[p.trail.length-1];if(Math.hypot(p.x-prev.x,p.y-prev.y)>7)p.trail.push({x:p.x,y:p.y})}}else if(p.drawing){const ok=closeLoop(p);p.trail=[];p.drawing=false;if(ok&&p.i!==0){} }}
-}
-function tick(now){
-if(!running||paused){last=now;return}
-const dt=Math.min(.04,(now-last)/1000||0);last=now;elapsed+=dt;
-const p=players[0];if(p){let dx=joy.x,dy=joy.y;if(keys.ArrowLeft||keys.a)dx-=1;if(keys.ArrowRight||keys.d)dx+=1;if(keys.ArrowUp||keys.w)dy-=1;if(keys.ArrowDown||keys.s)dy+=1;move(p,dx,dy,dt);cam.x=p.x;cam.y=p.y}
-for(let i=1;i<players.length;i++){const q=players[i];q.aiTimer-=dt;if(q.aiTimer<=0){q.aiTimer=1+Math.random()*2;q.aiDx=Math.random()*2-1;q.aiDy=Math.random()*2-1}move(q,q.aiDx||0,q.aiDy||0,dt)}
-if(elapsed>=120){running=false;showMessage('TIME UP! Your territory: '+percent(players[0])+'%');setTimeout(()=>$('overlay').style.display='flex',1300)}
-updateHud();draw();if(running)requestAnimationFrame(tick)
-}
-$('startBtn').addEventListener('click',()=>{reset();draw();requestAnimationFrame(tick)});
-$('pauseBtn').addEventListener('click',()=>{if(!running)return;paused=!paused;$('pauseBtn').textContent=paused?'▶ RESUME':'Ⅱ PAUSE';if(!paused){last=performance.now();requestAnimationFrame(tick);draw()}});
-$('modeBtn').addEventListener('click',()=>{mode=(mode+1)%modes.length;updateHud();showMessage(modes[mode]+' mode selected (prototype)')});
-const stick=$('stick'),knob=$('knob');
-function setJoy(e){const r=stick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let x=(e.clientX-cx)/(r.width*.34),y=(e.clientY-cy)/(r.height*.34),l=Math.hypot(x,y);if(l>1){x/=l;y/=l}joy={x,y};knob.style.transform=`translate(${x*34}px,${y*34}px)`}
-stick.addEventListener('pointerdown',e=>{pointer=e.pointerId;stick.setPointerCapture(pointer);setJoy(e)});
-stick.addEventListener('pointermove',e=>{if(pointer===e.pointerId)setJoy(e)});
-function release(e){if(pointer===e.pointerId){pointer=null;joy={x:0,y:0};knob.style.transform='translate(0,0)'}}
-stick.addEventListener('pointerup',release);stick.addEventListener('pointercancel',release);
-addEventListener('keydown',e=>{keys[e.key]=true;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault()});
-addEventListener('keyup',e=>keys[e.key]=false);
-let deferredInstall;$('installBtn').addEventListener('click',async()=>{if(deferredInstall){deferredInstall.prompt();await deferredInstall.userChoice;deferredInstall=null;$('installBtn').style.display='none'}else showMessage('Use browser menu → Add to Home screen')});
-addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;$('installBtn').style.display='block'});
-if('serviceWorker' in navigator && location.protocol!=='file:')addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+function ai(p,dt){p.aiTime-=dt;if(p.aiTime<=0){p.aiTime=1.0+Math.random()*1.6;const a=Math.random()*Math.PI*2;p.aiX=Math.cos(a);p.aiY=Math.sin(a)}move(p,p.aiX,p.aiY,dt)}
+function loop(t){if(!active||paused)return;const dt=Math.min(.032,Math.max(.001,(t-last)/1000));last=t;elapsed+=dt;const p=players[0];let dx=joy.x,dy=joy.y;if(keys.ArrowLeft||keys.a)dx--;if(keys.ArrowRight||keys.d)dx++;if(keys.ArrowUp||keys.w)dy--;if(keys.ArrowDown||keys.s)dy++;move(p,dx,dy,dt);for(let i=1;i<players.length;i++)ai(players[i],dt);cam.x+=(p.x-cam.x)*Math.min(1,dt*7);cam.y+=(p.y-cam.y)*Math.min(1,dt*7);if(frame++%6===0)updateHud();render();if(elapsed>=ROUND){active=false;notify('TIME UP · '+percent(0)+'% LAND');setTimeout(()=>{$('cover').style.display='grid';$('play').textContent='PLAY AGAIN'},1100);return}raf=requestAnimationFrame(loop)}
+function roundRect(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
+function render(){if(!ctx||!sw||!sh)return;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#c9fff1';ctx.fillRect(0,0,sw,sh);
+const scale=Math.min(sw/500,sh/700,1.15);ctx.save();ctx.translate(sw/2,sh/2);ctx.scale(scale,scale);ctx.translate(-cam.x,-cam.y);
+ctx.fillStyle='#d5fff3';ctx.fillRect(0,0,WW,WH);
+ctx.strokeStyle='#b7f1e7';ctx.lineWidth=1;for(let x=0;x<WW;x+=56){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,WH);ctx.stroke()}for(let y=0;y<WH;y+=56){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(WW,y);ctx.stroke()}
+// Fast horizontal runs keep rendering lightweight.
+for(let y=0;y<ROWS;y++){let x=0;while(x<COLS){const id=land[y*COLS+x];if(id<0){x++;continue}let end=x+1;while(end<COLS&&land[y*COLS+end]===id)end++;ctx.fillStyle=COLORS[id]+'42';ctx.fillRect(x*CELL,y*CELL,(end-x)*CELL,CELL);x=end}}
+for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLS-1;x++){const id=land[y*COLS+x];if(id<0)continue;if(land[y*COLS+x-1]!==id||land[y*COLS+x+1]!==id||land[(y-1)*COLS+x]!==id||land[(y+1)*COLS+x]!==id){ctx.strokeStyle=COLORS[id];ctx.lineWidth=2;ctx.strokeRect(x*CELL+1,y*CELL+1,CELL-2,CELL-2)}}
+for(const p of players){if(p.trail.length>1){ctx.beginPath();ctx.moveTo(p.trail[0].x,p.trail[0].y);for(let i=1;i<p.trail.length;i++)ctx.lineTo(p.trail[i].x,p.trail[i].y);ctx.lineJoin='round';ctx.lineCap='round';ctx.strokeStyle='#fff';ctx.lineWidth=9;ctx.stroke();ctx.strokeStyle=p.color;ctx.lineWidth=4.5;ctx.stroke()}}
+for(const p of players){ctx.fillStyle='#1c447522';ctx.beginPath();ctx.ellipse(p.x,p.y+12,18,8,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=p.color;ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.beginPath();ctx.arc(p.x,p.y,14,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle);ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse(4,-4,3.7,4.5,0,0,Math.PI*2);ctx.ellipse(4,4,3.7,4.5,0,0,Math.PI*2);ctx.fill();ctx.restore()}
+ctx.restore();drawMini()}
+function drawMini(){const el=$('mini'),w=100,h=100,x=12,y=sh-145;el.style.left=x+'px';el.style.top='auto';el.style.bottom='145px';const c=document.createElement('canvas');c.width=w*devicePixelRatio;c.height=h*devicePixelRatio;c.style.width='100%';c.style.height='100%';if(!el.firstChild||el.firstChild.tagName!=='CANVAS'){el.innerHTML='';el.appendChild(c)}else{el.firstChild.width=c.width;el.firstChild.height=c.height}const m=el.firstChild.getContext('2d');m.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);m.clearRect(0,0,w,h);for(let y=0;y<ROWS;y+=3)for(let x=0;x<COLS;x+=3){const id=land[y*COLS+x];if(id>=0){m.fillStyle=COLORS[id];m.fillRect(x/COLS*w,y/ROWS*h,3,3)}}for(const p of players){m.fillStyle=COLORS[p.id];m.beginPath();m.arc(p.x/WW*w,p.y/WH*h,2.7,0,Math.PI*2);m.fill()}}
+$('play').onclick=reset;$('pause').onclick=()=>{if(!active)return;paused=!paused;$('pause').textContent=paused?'▶ RESUME':'Ⅱ PAUSE';if(!paused){last=performance.now();raf=requestAnimationFrame(loop)}};
+$('mode').onclick=()=>{mode=(mode+1)%3;updateHud();notify(['TIMED MODE','SURVIVAL MODE (UI PREVIEW)','CAPTURE MODE (UI PREVIEW)'][mode])};
+const joyEl=$('joy'),nub=$('nub');let pid=null;function joyMove(e){const r=joyEl.getBoundingClientRect();let x=(e.clientX-r.left-r.width/2)/(r.width*.34),y=(e.clientY-r.top-r.height/2)/(r.height*.34),l=Math.hypot(x,y);if(l>1){x/=l;y/=l}joy={x,y};nub.style.transform=`translate(${x*32}px,${y*32}px)`}
+joyEl.addEventListener('pointerdown',e=>{pid=e.pointerId;joyEl.setPointerCapture(pid);joyMove(e)});joyEl.addEventListener('pointermove',e=>{if(pid===e.pointerId)joyMove(e)});function release(e){if(pid===e.pointerId){pid=null;joy={x:0,y:0};nub.style.transform='translate(0,0)'}}joyEl.addEventListener('pointerup',release);joyEl.addEventListener('pointercancel',release);
+addEventListener('keydown',e=>{keys[e.key]=true;if(e.key.startsWith('Arrow'))e.preventDefault()});addEventListener('keyup',e=>keys[e.key]=false);
+$('install').onclick=async()=>{if(installPrompt){installPrompt.prompt();await installPrompt.userChoice;installPrompt=null}else notify('Browser menu → Add to Home screen')};addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;$('install').style.display='block'});
+if('serviceWorker'in navigator&&location.protocol!=='file:')addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+resize();
 })();
-</script>
-</body></html>
+</script></body></html>
