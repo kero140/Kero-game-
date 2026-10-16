@@ -1,0 +1,11 @@
+{
+  "name": "Territory Trails",
+  "short_name": "Territory",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#c9fff1",
+  "theme_color": "#12bfe3",
+  "description": "Capture territory by closing your trail."
+}
